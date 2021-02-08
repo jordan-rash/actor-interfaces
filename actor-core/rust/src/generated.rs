@@ -14,10 +14,11 @@ use lazy_static::lazy_static;
 #[cfg(feature = "guest")]
 use std::sync::RwLock;
 
+#[cfg(feature = "guest")]
 pub struct Handlers {}
 
+#[cfg(feature = "guest")]
 impl Handlers {
-    #[cfg(feature = "guest")]
     pub fn register_health_request(
         f: fn(HealthCheckRequest) -> HandlerResult<HealthCheckResponse>,
     ) {

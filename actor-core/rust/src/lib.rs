@@ -23,10 +23,8 @@
 //!
 
 mod generated;
-pub use generated::{
-    deserialize, serialize, CapabilityConfiguration, Handlers, HealthCheckRequest,
-    HealthCheckResponse,
-};
+#[allow(unused_imports)]
+pub use generated::*;
 
 impl HealthCheckResponse {
     pub fn healthy() -> HealthCheckResponse {
