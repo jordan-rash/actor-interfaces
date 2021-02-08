@@ -1,6 +1,6 @@
 namespace "wasmcloud:blobstore"
 
-interface {        
+role Store {        
     CreateContainer(container: Container): Container
     RemoveContainer(container: Container): void
     RemoveObject(blob: Blob): void

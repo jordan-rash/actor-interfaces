@@ -15,160 +15,6 @@ use lazy_static::lazy_static;
 use std::sync::RwLock;
 
 #[cfg(feature = "guest")]
-pub struct Host {
-    binding: String,
-}
-
-#[cfg(feature = "guest")]
-impl Default for Host {
-    fn default() -> Self {
-        Host {
-            binding: "default".to_string(),
-        }
-    }
-}
-
-/// Creates a named host binding
-#[cfg(feature = "guest")]
-pub fn host(binding: &str) -> Host {
-    Host {
-        binding: binding.to_string(),
-    }
-}
-
-/// Creates the default host binding
-#[cfg(feature = "guest")]
-pub fn default() -> Host {
-    Host::default()
-}
-
-#[cfg(feature = "guest")]
-impl Host {
-    pub fn create_container(&self, container: Container) -> HandlerResult<Container> {
-        let input_args = CreateContainerArgs {
-            container_id: container,
-        };
-        host_call(
-            &self.binding,
-            "wasmcloud:blobstore",
-            "CreateContainer",
-            &serialize(input_args)?,
-        )
-        .map(|vec| {
-            let resp = deserialize::<Container>(vec.as_ref()).unwrap();
-            resp
-        })
-        .map_err(|e| e.into())
-    }
-
-    pub fn remove_container(&self, container: Container) -> HandlerResult<()> {
-        let input_args = RemoveContainerArgs {
-            container: container,
-        };
-        host_call(
-            &self.binding,
-            "wasmcloud:blobstore",
-            "RemoveContainer",
-            &serialize(input_args)?,
-        )
-        .map(|_vec| ())
-        .map_err(|e| e.into())
-    }
-
-    pub fn remove_object(&self, blob: Blob) -> HandlerResult<()> {
-        let input_args = RemoveObjectArgs { blob: blob };
-        host_call(
-            &self.binding,
-            "wasmcloud:blobstore",
-            "RemoveObject",
-            &serialize(input_args)?,
-        )
-        .map(|_vec| ())
-        .map_err(|e| e.into())
-    }
-
-    pub fn list_objects(&self, container: Container) -> HandlerResult<BlobList> {
-        let input_args = ListObjectsArgs {
-            container: container,
-        };
-        host_call(
-            &self.binding,
-            "wasmcloud:blobstore",
-            "ListObjects",
-            &serialize(input_args)?,
-        )
-        .map(|vec| {
-            let resp = deserialize::<BlobList>(vec.as_ref()).unwrap();
-            resp
-        })
-        .map_err(|e| e.into())
-    }
-
-    pub fn upload_chunk(&self, chunk: FileChunk) -> HandlerResult<()> {
-        let input_args = UploadChunkArgs { chunk: chunk };
-        host_call(
-            &self.binding,
-            "wasmcloud:blobstore",
-            "UploadChunk",
-            &serialize(input_args)?,
-        )
-        .map(|_vec| ())
-        .map_err(|e| e.into())
-    }
-
-    pub fn start_download(&self, request: StreamRequest) -> HandlerResult<()> {
-        let input_args = StartDownloadArgs { request: request };
-        host_call(
-            &self.binding,
-            "wasmcloud:blobstore",
-            "StartDownload",
-            &serialize(input_args)?,
-        )
-        .map(|_vec| ())
-        .map_err(|e| e.into())
-    }
-
-    pub fn start_upload(&self, blob: FileChunk) -> HandlerResult<()> {
-        let input_args = StartUploadArgs { blob: blob };
-        host_call(
-            &self.binding,
-            "wasmcloud:blobstore",
-            "StartUpload",
-            &serialize(input_args)?,
-        )
-        .map(|_vec| ())
-        .map_err(|e| e.into())
-    }
-
-    pub fn receive_chunk(&self, chunk: FileChunk) -> HandlerResult<()> {
-        let input_args = ReceiveChunkArgs { chunk: chunk };
-        host_call(
-            &self.binding,
-            "wasmcloud:blobstore",
-            "ReceiveChunk",
-            &serialize(input_args)?,
-        )
-        .map(|_vec| ())
-        .map_err(|e| e.into())
-    }
-
-    pub fn get_object_info(&self, blob: Blob) -> HandlerResult<Blob> {
-        let input_args = GetObjectInfoArgs { blob: blob };
-        host_call(
-            &self.binding,
-            "wasmcloud:blobstore",
-            "GetObjectInfo",
-            &serialize(input_args)?,
-        )
-        .map(|vec| {
-            let resp = deserialize::<Blob>(vec.as_ref()).unwrap();
-            resp
-        })
-        .map_err(|e| e.into())
-    }
-}
-
-#[cfg(feature = "guest")]
 pub struct Handlers {}
 
 #[cfg(feature = "guest")]
@@ -233,7 +79,7 @@ lazy_static! {
 fn create_container_wrapper(input_payload: &[u8]) -> CallResult {
     let input = deserialize::<CreateContainerArgs>(input_payload)?;
     let lock = CREATE_CONTAINER.read().unwrap().unwrap();
-    let result = lock(input.container_id)?;
+    let result = lock(input.container)?;
     Ok(serialize(result)?)
 }
 
@@ -304,7 +150,7 @@ fn get_object_info_wrapper(input_payload: &[u8]) -> CallResult {
 #[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
 pub struct CreateContainerArgs {
     #[serde(rename = "container")]
-    pub container_id: Container,
+    pub container: Container,
 }
 
 #[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]

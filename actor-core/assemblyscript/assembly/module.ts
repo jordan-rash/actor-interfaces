@@ -1,32 +1,6 @@
-import { register, hostCall } from "@wapc/as-guest";
-import {
-  Decoder,
-  Writer,
-  Encoder,
-  Sizer,
-  Codec,
-  Value,
-} from "@wapc/as-msgpack";
+import { Decoder, Writer, Encoder, Sizer, Codec } from "@wapc/as-msgpack";
 
-export class Host {
-  binding: string;
-
-  constructor(binding: string = "default") {
-    this.binding = binding;
-  }
-
-  HealthRequest(request: HealthCheckRequest): HealthCheckResponse {
-    const payload = hostCall(
-      this.binding,
-      "core",
-      "HealthRequest",
-      request.toBuffer()
-    );
-    const decoder = new Decoder(payload);
-    return HealthCheckResponse.decode(decoder);
-  }
-}
-
+import { register } from "@wapc/as-guest";
 export class Handlers {
   static registerHealthRequest(
     handler: (request: HealthCheckRequest) => HealthCheckResponse

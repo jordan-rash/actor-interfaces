@@ -3,9 +3,6 @@ generates:
   src/generated.rs:
     package: widl-codegen/language/rust
     visitorClass: ModuleVisitor
-  src/lib.rs:
-    ifNotExists: true
-    package: widl-codegen/language/rust
-    visitorClass: ScaffoldVisitor
     config:
-      use: generated
+      handlerRoles:
+        - Store

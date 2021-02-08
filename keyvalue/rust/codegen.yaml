@@ -2,4 +2,7 @@ schema: ../keyvalue.widl
 generates:
   src/generated.rs:
     package: widl-codegen/language/rust
-    visitorClass: ModuleVisitor  
+    visitorClass: ModuleVisitor
+    config:
+      hostRoles:
+        - Store

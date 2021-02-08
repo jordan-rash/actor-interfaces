@@ -1,6 +1,6 @@
 namespace "core"
 
-interface {
+role Actor {
   HealthRequest{request: HealthCheckRequest}: HealthCheckResponse
 }
 

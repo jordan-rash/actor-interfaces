@@ -5,6 +5,8 @@ generates:
     visitorClass: ModuleVisitor
     config:
       package: actorcore
+      handlerRoles:
+        - Actor
   #pkg/main.go:
   #  ifNotExists: true
   #  package: widl-codegen/language/tinygo

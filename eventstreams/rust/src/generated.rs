@@ -3,6 +3,7 @@ use rmps::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
 use std::io::Cursor;
 
+extern crate log;
 #[cfg(feature = "guest")]
 extern crate wapc_guest as guest;
 #[cfg(feature = "guest")]
@@ -27,7 +28,7 @@ impl Default for Host {
     }
 }
 
-/// Creates a named host binding for the key-value store capability
+/// Creates a named host binding
 #[cfg(feature = "guest")]
 pub fn host(binding: &str) -> Host {
     Host {
@@ -35,7 +36,7 @@ pub fn host(binding: &str) -> Host {
     }
 }
 
-/// Creates the default host binding for the key-value store capability
+/// Creates the default host binding
 #[cfg(feature = "guest")]
 pub fn default() -> Host {
     Host::default()
@@ -48,10 +49,7 @@ impl Host {
         stream_id: String,
         values: std::collections::HashMap<String, String>,
     ) -> HandlerResult<String> {
-        let input_args = WriteEventArgs {
-            stream_id: stream_id,
-            values: values,
-        };
+        let input_args = WriteEventArgs { stream_id, values };
         host_call(
             &self.binding,
             "wasmcloud:eventstreams",
@@ -94,32 +92,12 @@ impl Handlers {
 #[cfg(feature = "guest")]
 lazy_static! {
     static ref DELIVER_EVENT: RwLock<Option<fn(Event) -> HandlerResult<bool>>> = RwLock::new(None);
-    static ref WRITE_EVENT: RwLock<Option<fn(String, std::collections::HashMap<String, String>) -> HandlerResult<String>>> =
-        RwLock::new(None);
-    static ref QUERY_STREAM: RwLock<Option<fn(StreamQuery) -> HandlerResult<Vec<Event>>>> =
-        RwLock::new(None);
 }
 
 #[cfg(feature = "guest")]
 fn deliver_event_wrapper(input_payload: &[u8]) -> CallResult {
     let input = deserialize::<Event>(input_payload)?;
     let lock = DELIVER_EVENT.read().unwrap().unwrap();
-    let result = lock(input)?;
-    Ok(serialize(result)?)
-}
-
-#[cfg(feature = "guest")]
-fn write_event_wrapper(input_payload: &[u8]) -> CallResult {
-    let input = deserialize::<WriteEventArgs>(input_payload)?;
-    let lock = WRITE_EVENT.read().unwrap().unwrap();
-    let result = lock(input.stream_id, input.values)?;
-    Ok(serialize(result)?)
-}
-
-#[cfg(feature = "guest")]
-fn query_stream_wrapper(input_payload: &[u8]) -> CallResult {
-    let input = deserialize::<StreamQuery>(input_payload)?;
-    let lock = QUERY_STREAM.read().unwrap().unwrap();
     let result = lock(input)?;
     Ok(serialize(result)?)
 }

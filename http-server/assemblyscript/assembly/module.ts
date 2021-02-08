@@ -1,17 +1,10 @@
-import { register, hostCall } from "@wapc/as-guest";
-import {
-  Decoder,
-  Writer,
-  Encoder,
-  Sizer,
-  Codec,
-  Value,
-} from "@wapc/as-msgpack";
+import { Decoder, Writer, Encoder, Sizer, Codec } from "@wapc/as-msgpack";
 
+import { hostCall } from "@wapc/as-guest";
 export class Host {
   binding: string;
 
-  constructor(binding: string = "default") {
+  constructor(binding: string) {
     this.binding = binding;
   }
 
@@ -25,22 +18,6 @@ export class Host {
     const decoder = new Decoder(payload);
     return Response.decode(decoder);
   }
-}
-
-export class Handlers {
-  static registerHandleRequest(handler: (request: Request) => Response): void {
-    HandleRequestHandler = handler;
-    register("HandleRequest", HandleRequestWrapper);
-  }
-}
-
-var HandleRequestHandler: (request: Request) => Response;
-function HandleRequestWrapper(payload: ArrayBuffer): ArrayBuffer {
-  const decoder = new Decoder(payload);
-  const request = new Request();
-  request.decode(decoder);
-  const response = HandleRequestHandler(request);
-  return response.toBuffer();
 }
 
 export class Request implements Codec {
