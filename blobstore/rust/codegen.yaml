@@ -4,5 +4,5 @@ generates:
     package: widl-codegen/language/rust
     visitorClass: ModuleVisitor
     config:
-      handlerRoles:
+      hostRoles:
         - Store

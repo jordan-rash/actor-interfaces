@@ -6,9 +6,3 @@ generates:
     config:
       handlerRoles:
         - Actor
-  # assembly/index.ts:
-  #   ifNotExists: true
-  #   package: widl-codegen/language/assemblyscript
-  #   visitorClass: ScaffoldVisitor
-  #   config:
-  #     package: './module'
