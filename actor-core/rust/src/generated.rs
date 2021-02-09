@@ -18,6 +18,7 @@ pub struct Handlers {}
 
 #[cfg(feature = "guest")]
 impl Handlers {
+    /// A function that can respond to health checks
     pub fn register_health_request(
         f: fn(HealthCheckRequest) -> HandlerResult<HealthCheckResponse>,
     ) {
@@ -40,24 +41,36 @@ fn health_request_wrapper(input_payload: &[u8]) -> CallResult {
     Ok(serialize(result)?)
 }
 
+/// Represents the data sent to a capability provider at link time
 #[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
 pub struct CapabilityConfiguration {
+    /// The module name
     #[serde(rename = "module")]
     pub module: String,
+    /// A map of values that represent the configuration properties
     #[serde(rename = "values")]
     pub values: std::collections::HashMap<String, String>,
 }
 
+/// A request sent to the actor by the host itself in order to determine health
+/// status
 #[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
 pub struct HealthCheckRequest {
+    /// TODO: Figure out what goes here
     #[serde(rename = "placeholder")]
     pub placeholder: bool,
 }
 
+/// All actors must return a health check response to the host upon receipt of a
+/// health request. Returning in `Err` indicates total actor failure, while
+/// returning a valid response with the `healthy` flag set to false indicates that
+/// the actor has somehow detected that it cannot perform its given task
 #[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
 pub struct HealthCheckResponse {
+    /// A flag that indicates the the actor is healthy
     #[serde(rename = "healthy")]
     pub healthy: bool,
+    /// A message containing additional information about the actors health
     #[serde(rename = "message")]
     pub message: String,
 }

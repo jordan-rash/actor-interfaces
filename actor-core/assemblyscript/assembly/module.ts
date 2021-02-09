@@ -2,6 +2,7 @@ import { Decoder, Writer, Encoder, Sizer, Codec } from "@wapc/as-msgpack";
 
 import { register } from "@wapc/as-guest";
 export class Handlers {
+  // A function that can respond to health checks
   static registerHealthRequest(
     handler: (request: HealthCheckRequest) => HealthCheckResponse
   ): void {
@@ -19,8 +20,11 @@ function HealthRequestWrapper(payload: ArrayBuffer): ArrayBuffer {
   return response.toBuffer();
 }
 
+// Represents the data sent to a capability provider at link time
 export class CapabilityConfiguration implements Codec {
+  // The module name
   module: string = "";
+  // A map of values that represent the configuration properties
   values: Map<string, string> = new Map<string, string>();
 
   static decodeNullable(decoder: Decoder): CapabilityConfiguration | null {
@@ -107,7 +111,10 @@ export class CapabilityConfigurationBuilder {
   }
 }
 
+// A request sent to the actor by the host itself in order to determine health
+// status
 export class HealthCheckRequest implements Codec {
+  // TODO: Figure out what goes here
   placeholder: bool = false;
 
   static decodeNullable(decoder: Decoder): HealthCheckRequest | null {
@@ -170,8 +177,14 @@ export class HealthCheckRequestBuilder {
   }
 }
 
+// All actors must return a health check response to the host upon receipt of a
+// health request. Returning in `Err` indicates total actor failure, while
+// returning a valid response with the `healthy` flag set to false indicates that
+// the actor has somehow detected that it cannot perform its given task
 export class HealthCheckResponse implements Codec {
+  // A flag that indicates the the actor is healthy
   healthy: bool = false;
+  // A message containing additional information about the actors health
   message: string = "";
 
   static decodeNullable(decoder: Decoder): HealthCheckResponse | null {
