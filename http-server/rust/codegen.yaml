@@ -5,4 +5,4 @@ generates:
     visitorClass: ModuleVisitor
     config:
       hostRoles:
-        - Server
+        - Actor

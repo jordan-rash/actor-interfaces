@@ -8,8 +8,11 @@ role Store {
     UploadChunk(chunk: FileChunk): void
     StartDownload(request: StreamRequest): void
     StartUpload(blob: FileChunk): void
-    ReceiveChunk(chunk: FileChunk): void
     GetObjectInfo(blob: Blob): Blob
+}
+
+role Actor {
+    ReceiveChunk(chunk: FileChunk): void
 }
 
 type FileChunk {

@@ -1,6 +1,6 @@
 namespace "wasmcloud:httpserver"
 
-role Server {
+role Actor {
   HandleRequest{request: Request}: Response
 }
 

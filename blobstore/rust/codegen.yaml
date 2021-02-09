@@ -6,3 +6,5 @@ generates:
     config:
       hostRoles:
         - Store
+      handlerRoles:
+        - Actor

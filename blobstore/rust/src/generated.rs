@@ -134,18 +134,6 @@ impl Host {
         .map_err(|e| e.into())
     }
 
-    pub fn receive_chunk(&self, chunk: FileChunk) -> HandlerResult<()> {
-        let input_args = ReceiveChunkArgs { chunk };
-        host_call(
-            &self.binding,
-            "wasmcloud:blobstore",
-            "ReceiveChunk",
-            &serialize(input_args)?,
-        )
-        .map(|_vec| ())
-        .map_err(|e| e.into())
-    }
-
     pub fn get_object_info(&self, blob: Blob) -> HandlerResult<Blob> {
         let input_args = GetObjectInfoArgs { blob };
         host_call(
@@ -160,6 +148,31 @@ impl Host {
         })
         .map_err(|e| e.into())
     }
+}
+
+#[cfg(feature = "guest")]
+pub struct Handlers {}
+
+#[cfg(feature = "guest")]
+impl Handlers {
+    pub fn register_receive_chunk(f: fn(FileChunk) -> HandlerResult<()>) {
+        *RECEIVE_CHUNK.write().unwrap() = Some(f);
+        register_function(&"ReceiveChunk", receive_chunk_wrapper);
+    }
+}
+
+#[cfg(feature = "guest")]
+lazy_static! {
+    static ref RECEIVE_CHUNK: RwLock<Option<fn(FileChunk) -> HandlerResult<()>>> =
+        RwLock::new(None);
+}
+
+#[cfg(feature = "guest")]
+fn receive_chunk_wrapper(input_payload: &[u8]) -> CallResult {
+    let input = deserialize::<ReceiveChunkArgs>(input_payload)?;
+    let lock = RECEIVE_CHUNK.read().unwrap().unwrap();
+    let result = lock(input.chunk)?;
+    Ok(serialize(result)?)
 }
 
 #[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
@@ -205,15 +218,15 @@ pub struct StartUploadArgs {
 }
 
 #[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
-pub struct ReceiveChunkArgs {
-    #[serde(rename = "chunk")]
-    pub chunk: FileChunk,
-}
-
-#[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
 pub struct GetObjectInfoArgs {
     #[serde(rename = "blob")]
     pub blob: Blob,
+}
+
+#[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
+pub struct ReceiveChunkArgs {
+    #[serde(rename = "chunk")]
+    pub chunk: FileChunk,
 }
 
 #[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
