@@ -1,7 +1,10 @@
 namespace "wasmcloud:telnet"
 
-interface {        
+role Sessions {        
+    SendText(session: string, text: string) : bool
+}
+
+role Actor {
     SessionStarted(session: string) : bool
     ReceiveText(session: string, text: string) : bool
-    SendText(session: string, text: string) : bool
 }

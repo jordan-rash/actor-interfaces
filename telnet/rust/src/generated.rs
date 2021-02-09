@@ -27,7 +27,7 @@ impl Default for Host {
     }
 }
 
-/// Creates a named host binding for the key-value store capability
+/// Creates a named host binding
 #[cfg(feature = "guest")]
 pub fn host(binding: &str) -> Host {
     Host {
@@ -35,7 +35,7 @@ pub fn host(binding: &str) -> Host {
     }
 }
 
-/// Creates the default host binding for the key-value store capability
+/// Creates the default host binding
 #[cfg(feature = "guest")]
 pub fn default() -> Host {
     Host::default()
@@ -43,14 +43,8 @@ pub fn default() -> Host {
 
 #[cfg(feature = "guest")]
 impl Host {
-    /// Sends a string of text to a given session. The provider is not responsible for
-    /// indicating if this is a valid session or not. The telnet provider will not automatically
-    /// add newlines or carriage returns.
     pub fn send_text(&self, session: String, text: String) -> HandlerResult<bool> {
-        let input_args = SendTextArgs {
-            session: session,
-            text: text,
-        };
+        let input_args = SendTextArgs { session, text };
         host_call(
             &self.binding,
             "wasmcloud:telnet",
@@ -86,8 +80,6 @@ lazy_static! {
         RwLock::new(None);
     static ref RECEIVE_TEXT: RwLock<Option<fn(String, String) -> HandlerResult<bool>>> =
         RwLock::new(None);
-    static ref SEND_TEXT: RwLock<Option<fn(String, String) -> HandlerResult<bool>>> =
-        RwLock::new(None);
 }
 
 #[cfg(feature = "guest")]
@@ -106,12 +98,12 @@ fn receive_text_wrapper(input_payload: &[u8]) -> CallResult {
     Ok(serialize(result)?)
 }
 
-#[cfg(feature = "guest")]
-fn send_text_wrapper(input_payload: &[u8]) -> CallResult {
-    let input = deserialize::<SendTextArgs>(input_payload)?;
-    let lock = SEND_TEXT.read().unwrap().unwrap();
-    let result = lock(input.session, input.text)?;
-    Ok(serialize(result)?)
+#[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
+pub struct SendTextArgs {
+    #[serde(rename = "session")]
+    pub session: String,
+    #[serde(rename = "text")]
+    pub text: String,
 }
 
 #[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
@@ -122,14 +114,6 @@ pub struct SessionStartedArgs {
 
 #[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
 pub struct ReceiveTextArgs {
-    #[serde(rename = "session")]
-    pub session: String,
-    #[serde(rename = "text")]
-    pub text: String,
-}
-
-#[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
-pub struct SendTextArgs {
     #[serde(rename = "session")]
     pub session: String,
     #[serde(rename = "text")]
