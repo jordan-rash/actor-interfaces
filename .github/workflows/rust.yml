@@ -24,6 +24,7 @@ jobs:
       id: set-actor-matrix
       run: |
         output=$(ls -d -1 * | while read line; do echo \"$line\"; done | tr '\n' ',' | sed -e 's/^ //' -e 's/,$//' | (read; echo [$REPLY]))
+        echo "::set-output name=matrix::$output"
   view_output:
     runs-on: ubuntu-latest
     needs: get_actors
