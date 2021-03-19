@@ -41,14 +41,14 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build
       run: cargo build --verbose
-      working-directory: ${{ needs.get_actors.outputs.matrix }}/ru
+      working-directory: ${{ needs.get_actors.outputs.matrix }}/rust
     - name: Run tests
       run: cargo test --features "guest" --verbose
-      working-directory: ${{env.working-directory}}
+      working-directory: ${{ needs.get_actors.outputs.matrix }}/rust
     - name: Check fmt
       run: cargo fmt -- --check
-      working-directory: ${{env.working-directory}}
+      working-directory: ${{ needs.get_actors.outputs.matrix }}/rust
     - run: rustup component add clippy
     - name: Run cargo clippy
       run: cargo clippy --all-features
-      working-directory: ${{env.working-directory}}
+      working-directory: ${{ needs.get_actors.outputs.matrix }}/rust
