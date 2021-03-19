@@ -16,31 +16,17 @@ env:
 jobs:
   get_actors:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-actor-matrix.outputs.matrix }}
     steps:
     - uses: actions/checkout@v2
     - name: Build actor map
-      id: set-actor-martix
-      run: echo "::set-output name=matrix::$(ls -d -1 * | while read line; do echo \"$line\"; done | tr '\n' ',' | sed -e 's/^ //' -e 's/,$//' | (read; echo [$REPLY])"
-    outputs:
-      matrix: ${{ steps.set-actor-matrix.outputs.matrix }}
-
-  cargo_check:
+      id: set-actor-matrix
+      run: |
+        echo "::set-output name=matrix::derp" 
+  view_output:
     runs-on: ubuntu-latest
-    strategy:
-      matrix: 
-        actors: ${{ fromJson(needs.get_actors.outputs.matrix) }}
+    needs: get_actors
     steps:
-    - uses: actions/checkout@v2
-    - run: cargo clippy --all-features
-    - name: Build
-      run: cargo build --verbose
-      working-directory: ${{matrix.actors}}/rust
-    - name: Run tests
-      run: cargo test --features "guest" --verbose
-      working-directory: ${{matrix.actors}}/rust
-    - name: Check fmt
-      run: cargo fmt -- --check
-      working-directory: ${{matrix.actors}}/rust
-    - name: Run cargo clippy
-      run: cargo clippy --all-features
-      working-directory: ${{matrix.actors}}/rust
+    - name: Output Matrix
+      run: echo ${{ needs.get_actors.outputs.matrix }}
