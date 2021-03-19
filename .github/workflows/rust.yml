@@ -23,7 +23,7 @@ jobs:
     - name: Build actor map
       id: set-actor-matrix
       run: |
-        output=$(ls -d -1 * | while read line; do echo \"$line\"; done | tr '\n' ',' | sed -e 's/^ //' -e 's/,$//' | (read; echo [$REPLY]))
+        output=$(ls -d -1 */ | while read line; do echo \"$line\"; done | tr '\n' ',' | sed -e 's/^ //' -e 's/,$//' | (read; echo [$REPLY]))
         echo "::set-output name=matrix::$output"
   view_output:
     runs-on: ubuntu-latest
@@ -31,3 +31,24 @@ jobs:
     steps:
     - name: Output Matrix
       run: echo ${{ needs.get_actors.outputs.matrix }}
+
+  cargo_check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        actors: ${{ fromJson(needs.get_actors.outputs.matrix) }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --verbose
+      working-directory: ${{ needs.get_actors.outputs.matrix }}/ru
+    - name: Run tests
+      run: cargo test --features "guest" --verbose
+      working-directory: ${{env.working-directory}}
+    - name: Check fmt
+      run: cargo fmt -- --check
+      working-directory: ${{env.working-directory}}
+    - run: rustup component add clippy
+    - name: Run cargo clippy
+      run: cargo clippy --all-features
+      working-directory: ${{env.working-directory}}
