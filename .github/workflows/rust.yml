@@ -34,6 +34,7 @@ jobs:
 
   cargo_check:
     runs-on: ubuntu-latest
+    needs: get_actors
     strategy:
       matrix:
         actors: ${{ fromJson(needs.get_actors.outputs.matrix) }}
