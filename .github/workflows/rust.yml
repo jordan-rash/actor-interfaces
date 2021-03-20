@@ -23,7 +23,6 @@ jobs:
     - name: Build actor map
       id: set-actor-matrix
       run: |
-        ls -lah
         output=$(ls -d -1 */ | while read line; do echo \"$line\"; done | tr '\n' ',' | sed -e 's/^ //' -e 's/,$//' | (read; echo [$REPLY]))
         echo "::set-output name=matrix::$output"
   view_output:
@@ -43,14 +42,14 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build
       run: cargo build --verbose
-      working-directory: ./${{ needs.get_actors.outputs.matrix }}rust
+      working-directory: ./${{ matrix.actors }}rust
     - name: Run tests
       run: cargo test --features "guest" --verbose
-      working-directory: ${{ needs.get_actors.outputs.matrix }}rust
+      working-directory: ${{ matrix.actors }}rust
     - name: Check fmt
       run: cargo fmt -- --check
-      working-directory: ./${{ needs.get_actors.outputs.matrix }}rust
+      working-directory: ./${{ matrix.actors }}rust
     - run: rustup component add clippy
     - name: Run cargo clippy
       run: cargo clippy --all-features
-      working-directory: ./${{ needs.get_actors.outputs.matrix }}rust
+      working-directory: ./${{ matrix.actors }}rust
