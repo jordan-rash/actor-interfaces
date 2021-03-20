@@ -36,6 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: get_actors
     strategy:
+      fail-fast: false
       matrix:
         actors: ${{ fromJson(needs.get_actors.outputs.matrix) }}
     steps:
