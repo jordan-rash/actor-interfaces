@@ -1,0 +1,7 @@
+schema: ../httpclient.widl
+generates:
+  httpclient.go:
+    package: widl-codegen/language/tinygo
+    visitorClass: ModuleVisitor
+    config:
+      package: httpclient
